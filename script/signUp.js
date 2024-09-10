@@ -16,32 +16,18 @@ function signup(){
         if (password != rePassword) {
             alert("re enter password not matched")
         } else {
-            $.ajax({
-                url: "http://localhost:8083/api/v1/auth/register",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify({
-                    "email": email,
-                    "password": password,
-                    "name": userName
-                }),
-                success: (res) => {
-                    console.log(res);
-                    localStorage.setItem("token",res.data.token)
-                    Swal.fire({
-                        title: "signup successfully",
-                        icon: "success"
-                    });
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed up
+                    const user = userCredential.user;
+                    alert('Sign Up Successfully!');
                     window.location.href = "index.html"
-                },
-                error: (res) => {
-                    console.error(res);
-                    Swal.fire({
-                        title: "Try again",
-                        icon: "error"
-                    });
-                }
-            });
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    console.log(errorCode, errorMessage)
+                });
         }
     }
 }
@@ -57,28 +43,17 @@ $('#loginbtn').on('click', function(event) {
         return;
     }
 
-    const signInData = {
-        email: email,
-        password: password
-    };
-    $.ajax({
-        url: 'http://localhost:8083/api/v1/auth/authenticate',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(signInData),
-        success: function(response) {
-            localStorage.setItem("token",response.data.token);
+    auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in
+            const user = userCredential.user;
             window.location.href = './dashboard/index.html';
-            Swal.fire({
-                title: "Log in successfully",
-                icon: "success"
-            });
-        },
-        error: function(error) {
-            Swal.fire({
-                title: "Please check your credentials and try again",
-                icon: "error"
-            });
-        }
-    });
+            alert('Sign In Successfully!');
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.log(errorCode, errorMessage)
+            alert("User Credentials do not match!");
+        });
 });
